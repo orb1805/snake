@@ -4,40 +4,43 @@ using UnityEngine;
 
 public class HeadMoving : MonoBehaviour
 {
-    private int skip = 0;
+    private float time;
+    private float deltaTime = 0.15f;
     private Vector3 step = new Vector3(1f, 0f, 0f);
     private bool isPlaying = true;
     private enum State { right = 0, left = 1, up = 2, down = 3 };
     private State state = State.right;
     private int addCount = 0;
     private Vector3 tailPosition = new Vector3(0f, 0f, 0f);
+    private Quaternion rotation = Quaternion.Euler(0, 0, 0);
 
     public GameObject bodyPart;
     public GameObject chershnyaObj;
     private GameObject chereshnya;
+    public GameObject tailObj;
+    private GameObject tail;
+    public GameObject angleObj;
     private List<GameObject> snake = new List<GameObject>();
+    private List<State> directions = new List<State>();
 
-    // Start is called before the first frame update
     void Start()
     {
         snake.Add(Instantiate(bodyPart));
         snake[0].transform.position = new Vector3(-1f, 0f, 0f);
-        snake.Add(Instantiate(bodyPart));
-        snake[1].transform.position = new Vector3(-2f, 0f, 0f);
+        tail = Instantiate(tailObj);
+        tail.transform.position = new Vector3(-2f, 0f, 0f);
         chereshnya = Instantiate(chershnyaObj);
         chereshnya.transform.position = new Vector3(Random.Range(-8, 8), Random.Range(-7, 7), 0f);
+        time = Time.time;
     }
 
-    // Update is called once per frame
     void Update()
     {
         if (isPlaying)
         {
-            if (skip < 25)
-                skip++;
-            else
+            if (Time.time - time > deltaTime)
             {
-                skip = 0;
+                time = Time.time;
                 tailPosition[0] = snake[snake.Count - 1].transform.position.x;
                 tailPosition[1] = snake[snake.Count - 1].transform.position.y;
                 tailPosition[2] = snake[snake.Count - 1].transform.position.z;
@@ -50,23 +53,31 @@ public class HeadMoving : MonoBehaviour
             }
             if (Input.GetKey(KeyCode.UpArrow) && state != State.down)
             {
-                step = new Vector3(0f, 1f, 0f);
+                step[0] = 0f;
+                step[1] = 1f;
                 state = State.up;
+                rotation = Quaternion.Euler(0, 0, 90);
             }
             else if (Input.GetKey(KeyCode.DownArrow) && state != State.up)
             {
-                step = new Vector3(0f, -1f, 0f);
+                step[0] = 0f;
+                step[1] = -1f;
                 state = State.down;
+                rotation = Quaternion.Euler(0, 0, 270);
             }
             else if (Input.GetKey(KeyCode.RightArrow) && state != State.left)
             {
-                step = new Vector3(1f, 0f, 0f);
+                step[0] = 1f;
+                step[1] = 0f;
                 state = State.right;
+                rotation = Quaternion.Euler(0, 0, 0);
             }
             else if (Input.GetKey(KeyCode.LeftArrow) && state != State.right)
             {
-                step = new Vector3(-1f, 0f, 0f);
+                step[0] = -1f;
+                step[1] = 0f;
                 state = State.left;
+                rotation = Quaternion.Euler(0, 0, 180);
             }
         }
     }
@@ -86,12 +97,110 @@ public class HeadMoving : MonoBehaviour
 
     private void moveSnake()
     {
-        for (int i = snake.Count - 1; i > 0; i--)
+        tail.transform.position = snake[snake.Count - 1].transform.position;
+        for (int i = snake.Count - 1; i > 1; i--)
         {
-            snake[i].transform.position = snake[i - 1].transform.position;
+            //Debug.Log(snake[i].transform.position.x + " - " + snake[i - 1].transform.position.x + "   " + snake[i].transform.position.y + " - " + snake[i - 1].transform.position.y);
+            if ((snake[i].transform.position.x < snake[i - 2].transform.position.x && snake[i].transform.position.y < snake[i - 2].transform.position.y) ||
+                (snake[i].transform.position.x > snake[i - 2].transform.position.x && snake[i].transform.position.y > snake[i - 2].transform.position.y))
+            {
+                //вниз влево, вправо вверх
+                Vector3 pos = snake[i - 1].transform.position;
+                Destroy(snake[i]);
+                snake[i] = Instantiate(angleObj, pos, Quaternion.Euler(0, 0, 0));
+            }
+            else if ((snake[i].transform.position.x < snake[i - 2].transform.position.x && snake[i].transform.position.y > snake[i - 2].transform.position.y) ||
+                (snake[i].transform.position.x > snake[i - 2].transform.position.x && snake[i].transform.position.y < snake[i - 2].transform.position.y))
+            {
+                //вверх влево, вниз вправо
+                Vector3 pos = snake[i - 1].transform.position;
+                Destroy(snake[i]);
+                snake[i] = Instantiate(angleObj, pos, Quaternion.Euler(0, 0, 90));
+            }
+            else if ((snake[i].transform.position.x > snake[i - 2].transform.position.x && snake[i].transform.position.y < snake[i - 2].transform.position.y) ||
+                (snake[i].transform.position.x < snake[i - 2].transform.position.x && snake[i].transform.position.y > snake[i - 2].transform.position.y))
+            {
+                Vector3 pos = snake[i - 1].transform.position;
+                Destroy(snake[i]);
+                snake[i] = Instantiate(angleObj, pos, Quaternion.Euler(0, 0, 90));
+            }
+            else if ((snake[i].transform.position.x > snake[i - 2].transform.position.x && snake[i].transform.position.y > snake[i - 2].transform.position.y) ||
+                (snake[i].transform.position.x < snake[i - 2].transform.position.x && snake[i].transform.position.y < snake[i - 2].transform.position.y))
+            {
+                Vector3 pos = snake[i - 1].transform.position;
+                Destroy(snake[i]);
+                snake[i] = Instantiate(angleObj, pos, Quaternion.Euler(0, 0, 0));
+            }
+            else
+            {
+                Vector3 pos = snake[i - 1].transform.position;
+                Destroy(snake[i]);
+                snake[i] = Instantiate(bodyPart, pos, Quaternion.Euler(0, 0, 0));
+            }
+
+            /*if (snake[i].transform.position.x < snake[i - 1].transform.position.x)
+            {
+                if (snake[i].transform.position.y < snake[i - 1].transform.position.y)
+                {
+                    Vector3 pos = snake[i - 1].transform.position;
+                    Destroy(snake[i]);
+                    snake[i] = Instantiate(angleObj, pos, Quaternion.Euler(0, 0, 0));
+                }
+                else if (snake[i].transform.position.y > snake[i - 1].transform.position.y)
+                {
+                    Vector3 pos = snake[i - 1].transform.position;
+                    Destroy(snake[i]);
+                    snake[i] = Instantiate(angleObj, pos, Quaternion.Euler(0, 0, 180));
+                }
+                else
+                {
+                    Vector3 pos = snake[i - 1].transform.position;
+                    Destroy(snake[i]);
+                    snake[i] = Instantiate(bodyPart, pos, Quaternion.Euler(0, 0, 0));
+                }
+            }
+            else if (snake[i].transform.position.x < snake[i - 1].transform.position.x)
+            {
+                if (snake[i].transform.position.y < snake[i - 1].transform.position.y)
+                {
+                    Vector3 pos = snake[i - 1].transform.position;
+                    Destroy(snake[i]);
+                    snake[i] = Instantiate(angleObj, pos, Quaternion.Euler(0, 0, 90));
+                }
+                else if (snake[i].transform.position.y > snake[i - 1].transform.position.y)
+                {
+                    Vector3 pos = snake[i - 1].transform.position;
+                    Destroy(snake[i]);
+                    snake[i] = Instantiate(angleObj, pos, Quaternion.Euler(0, 0, 270));
+                }
+                else
+                {
+                    Vector3 pos = snake[i - 1].transform.position;
+                    Destroy(snake[i]);
+                    snake[i] = Instantiate(bodyPart, pos, Quaternion.Euler(0, 0, 0));
+                }
+            }
+            else
+            {
+                Vector3 pos = snake[i - 1].transform.position;
+                Destroy(snake[i]);
+                snake[i] = Instantiate(bodyPart, pos, Quaternion.Euler(0, 0, 0));
+            }*/
+            //snake[i].transform.position = snake[i - 1].transform.position;
         }
+        if (snake.Count > 1)
+            snake[1].transform.position = snake[0].transform.position;
         snake[0].transform.position = transform.position;
         transform.position += step;
+        transform.rotation = rotation;
+        if (tail.transform.position.x > snake[snake.Count - 1].transform.position.x)
+            tail.transform.rotation = Quaternion.Euler(0, 0, 180);
+        else if (tail.transform.position.x < snake[snake.Count - 1].transform.position.x)
+            tail.transform.rotation = Quaternion.Euler(0, 0, 0);
+        else if (tail.transform.position.y > snake[snake.Count - 1].transform.position.y)
+            tail.transform.rotation = Quaternion.Euler(0, 0, 270);
+        else if (tail.transform.position.y < snake[snake.Count - 1].transform.position.y)
+            tail.transform.rotation = Quaternion.Euler(0, 0, 90);
     }
 
     private Vector3 newChereshnyaPosition()
@@ -102,7 +211,6 @@ public class HeadMoving : MonoBehaviour
         while (flag)
         {
             flag = false;
-
             result[0] = Random.Range(-8, 8);
             result[1] = Random.Range(-7, 7);
             foreach (GameObject i in snake)
