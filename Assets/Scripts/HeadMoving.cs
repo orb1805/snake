@@ -8,11 +8,13 @@ public class HeadMoving : MonoBehaviour
     private float deltaTime = 0.15f;
     private Vector3 step = new Vector3(1f, 0f, 0f);
     private bool isPlaying = true;
-    private enum State { right = 0, left = 1, up = 2, down = 3 };
+    private enum State { right = 0, left = 1, up = 2, down = 3, downLeft = 4, upLeft = 5, rightUp = 6, rightDown = 7, leftUp = 8, downRight = 9, upRight = 10 , leftDown = 11};
     private State state = State.right;
+    private State tailState = State.right;
     private int addCount = 0;
     private Vector3 tailPosition = new Vector3(0f, 0f, 0f);
     private Quaternion rotation = Quaternion.Euler(0, 0, 0);
+    private bool addFlag = false;
 
     public GameObject bodyPart;
     public GameObject chershnyaObj;
@@ -27,6 +29,7 @@ public class HeadMoving : MonoBehaviour
     {
         snake.Add(Instantiate(bodyPart));
         snake[0].transform.position = new Vector3(-1f, 0f, 0f);
+        directions.Add(State.right);
         tail = Instantiate(tailObj);
         tail.transform.position = new Vector3(-2f, 0f, 0f);
         chereshnya = Instantiate(chershnyaObj);
@@ -47,7 +50,9 @@ public class HeadMoving : MonoBehaviour
                 moveSnake();
                 if (addCount > 0)
                 {
-                    snake.Add(Instantiate(bodyPart, tailPosition, Quaternion.Euler(0, 0, 0)));
+                    directions.Add(tailState);
+                    //snake.Add(Instantiate(bodyPart, tailPosition, Quaternion.Euler(0, 0, 0)));
+                    addFlag = true;
                     addCount--;
                 }
             }
@@ -97,110 +102,55 @@ public class HeadMoving : MonoBehaviour
 
     private void moveSnake()
     {
-        tail.transform.position = snake[snake.Count - 1].transform.position;
-        for (int i = snake.Count - 1; i > 1; i--)
+        if (addFlag)
         {
-            //Debug.Log(snake[i].transform.position.x + " - " + snake[i - 1].transform.position.x + "   " + snake[i].transform.position.y + " - " + snake[i - 1].transform.position.y);
-            if ((snake[i].transform.position.x < snake[i - 2].transform.position.x && snake[i].transform.position.y < snake[i - 2].transform.position.y) ||
-                (snake[i].transform.position.x > snake[i - 2].transform.position.x && snake[i].transform.position.y > snake[i - 2].transform.position.y))
-            {
-                //вниз влево, вправо вверх
-                Vector3 pos = snake[i - 1].transform.position;
-                Destroy(snake[i]);
-                snake[i] = Instantiate(angleObj, pos, Quaternion.Euler(0, 0, 0));
-            }
-            else if ((snake[i].transform.position.x < snake[i - 2].transform.position.x && snake[i].transform.position.y > snake[i - 2].transform.position.y) ||
-                (snake[i].transform.position.x > snake[i - 2].transform.position.x && snake[i].transform.position.y < snake[i - 2].transform.position.y))
-            {
-                //вверх влево, вниз вправо
-                Vector3 pos = snake[i - 1].transform.position;
-                Destroy(snake[i]);
-                snake[i] = Instantiate(angleObj, pos, Quaternion.Euler(0, 0, 90));
-            }
-            else if ((snake[i].transform.position.x > snake[i - 2].transform.position.x && snake[i].transform.position.y < snake[i - 2].transform.position.y) ||
-                (snake[i].transform.position.x < snake[i - 2].transform.position.x && snake[i].transform.position.y > snake[i - 2].transform.position.y))
-            {
-                Vector3 pos = snake[i - 1].transform.position;
-                Destroy(snake[i]);
-                snake[i] = Instantiate(angleObj, pos, Quaternion.Euler(0, 0, 90));
-            }
-            else if ((snake[i].transform.position.x > snake[i - 2].transform.position.x && snake[i].transform.position.y > snake[i - 2].transform.position.y) ||
-                (snake[i].transform.position.x < snake[i - 2].transform.position.x && snake[i].transform.position.y < snake[i - 2].transform.position.y))
-            {
-                Vector3 pos = snake[i - 1].transform.position;
-                Destroy(snake[i]);
-                snake[i] = Instantiate(angleObj, pos, Quaternion.Euler(0, 0, 0));
-            }
-            else
-            {
-                Vector3 pos = snake[i - 1].transform.position;
-                Destroy(snake[i]);
-                snake[i] = Instantiate(bodyPart, pos, Quaternion.Euler(0, 0, 0));
-            }
-
-            /*if (snake[i].transform.position.x < snake[i - 1].transform.position.x)
-            {
-                if (snake[i].transform.position.y < snake[i - 1].transform.position.y)
-                {
-                    Vector3 pos = snake[i - 1].transform.position;
-                    Destroy(snake[i]);
-                    snake[i] = Instantiate(angleObj, pos, Quaternion.Euler(0, 0, 0));
-                }
-                else if (snake[i].transform.position.y > snake[i - 1].transform.position.y)
-                {
-                    Vector3 pos = snake[i - 1].transform.position;
-                    Destroy(snake[i]);
-                    snake[i] = Instantiate(angleObj, pos, Quaternion.Euler(0, 0, 180));
-                }
-                else
-                {
-                    Vector3 pos = snake[i - 1].transform.position;
-                    Destroy(snake[i]);
-                    snake[i] = Instantiate(bodyPart, pos, Quaternion.Euler(0, 0, 0));
-                }
-            }
-            else if (snake[i].transform.position.x < snake[i - 1].transform.position.x)
-            {
-                if (snake[i].transform.position.y < snake[i - 1].transform.position.y)
-                {
-                    Vector3 pos = snake[i - 1].transform.position;
-                    Destroy(snake[i]);
-                    snake[i] = Instantiate(angleObj, pos, Quaternion.Euler(0, 0, 90));
-                }
-                else if (snake[i].transform.position.y > snake[i - 1].transform.position.y)
-                {
-                    Vector3 pos = snake[i - 1].transform.position;
-                    Destroy(snake[i]);
-                    snake[i] = Instantiate(angleObj, pos, Quaternion.Euler(0, 0, 270));
-                }
-                else
-                {
-                    Vector3 pos = snake[i - 1].transform.position;
-                    Destroy(snake[i]);
-                    snake[i] = Instantiate(bodyPart, pos, Quaternion.Euler(0, 0, 0));
-                }
-            }
-            else
-            {
-                Vector3 pos = snake[i - 1].transform.position;
-                Destroy(snake[i]);
-                snake[i] = Instantiate(bodyPart, pos, Quaternion.Euler(0, 0, 0));
-            }*/
-            //snake[i].transform.position = snake[i - 1].transform.position;
+            snake.Add(Instantiate(bodyPart, snake[snake.Count - 1].transform.position, Quaternion.Euler(0, 0, 0)));
+            addFlag = false;
         }
-        if (snake.Count > 1)
-            snake[1].transform.position = snake[0].transform.position;
-        snake[0].transform.position = transform.position;
+        else
+            tail.transform.position = snake[snake.Count - 1].transform.position;
+        for (int i = snake.Count - 1; i > 0; i--)
+        {
+            if (directions[i] != directions[i - 1])
+            {
+                Destroy(snake[i]);
+                snake[i] = bodyPartGeneration(directions[i - 1], snake[i - 1].transform.position);
+                directions[i] = directions[i - 1];
+            }
+            else
+                snake[i].transform.position = snake[i - 1].transform.position;
+        }
+        State dir = generateDirection();
+        if (dir != directions[0])
+        {
+            directions[0] = dir;
+            Destroy(snake[0]);
+            snake[0] = bodyPartGeneration(directions[0], transform.position);
+        }
+        else
+            snake[0].transform.position = transform.position;
         transform.position += step;
         transform.rotation = rotation;
         if (tail.transform.position.x > snake[snake.Count - 1].transform.position.x)
+        {
             tail.transform.rotation = Quaternion.Euler(0, 0, 180);
+            tailState = State.left;
+        }
         else if (tail.transform.position.x < snake[snake.Count - 1].transform.position.x)
+        { 
             tail.transform.rotation = Quaternion.Euler(0, 0, 0);
+            tailState = State.right;
+        }
         else if (tail.transform.position.y > snake[snake.Count - 1].transform.position.y)
+        { 
             tail.transform.rotation = Quaternion.Euler(0, 0, 270);
+            tailState = State.down;
+        }
         else if (tail.transform.position.y < snake[snake.Count - 1].transform.position.y)
+        { 
             tail.transform.rotation = Quaternion.Euler(0, 0, 90);
+            tailState = State.up;
+        }
     }
 
     private Vector3 newChereshnyaPosition()
@@ -218,5 +168,209 @@ public class HeadMoving : MonoBehaviour
                     flag = true;
         }
         return result;
+    }
+
+    private GameObject bodyPartGeneration(State state, Vector3 position)
+    {
+        switch (state)
+        {
+            case State.rightUp:
+                return Instantiate(angleObj, position, Quaternion.Euler(0, 0, 0));
+            case State.downLeft:
+                return Instantiate(angleObj, position, Quaternion.Euler(0, 0, 0));
+            case State.upLeft:
+                return Instantiate(angleObj, position, Quaternion.Euler(0, 0, 90));
+            case State.rightDown:
+                return Instantiate(angleObj, position, Quaternion.Euler(0, 0, 90));
+            case State.leftDown:
+                return Instantiate(angleObj, position, Quaternion.Euler(0, 0, 180));
+            case State.upRight:
+                return Instantiate(angleObj, position, Quaternion.Euler(0, 0, 180));
+            case State.leftUp:
+                return Instantiate(angleObj, position, Quaternion.Euler(0, 0, 270));
+            case State.downRight:
+                return Instantiate(angleObj, position, Quaternion.Euler(0, 0, 270));
+        }
+        return Instantiate(bodyPart, position, Quaternion.Euler(0, 0, 0));
+    }
+
+    private State generateDirection()
+    {
+        State dir = State.right;
+        switch (directions[0])
+        {
+            case State.down:
+                switch (state)
+                {
+                    case State.left:
+                        dir = State.downLeft;
+                        break;
+                    case State.right:
+                        dir = State.downRight;
+                        break;
+                    case State.down:
+                        dir = State.down;
+                        break;
+                }
+                break;
+            case State.rightDown:
+                switch (state)
+                {
+                    case State.left:
+                        dir = State.downLeft;
+                        break;
+                    case State.right:
+                        dir = State.downRight;
+                        break;
+                    case State.down:
+                        dir = State.down;
+                        break;
+                }
+                break;
+            case State.leftDown:
+                switch (state)
+                {
+                    case State.left:
+                        dir = State.downLeft;
+                        break;
+                    case State.right:
+                        dir = State.downRight;
+                        break;
+                    case State.down:
+                        dir = State.down;
+                        break;
+                }
+                break;
+
+            case State.up:
+                switch (state)
+                {
+                    case State.left:
+                        dir = State.upLeft;
+                        break;
+                    case State.right:
+                        dir = State.upRight;
+                        break;
+                    case State.up:
+                        dir = State.up;
+                        break;
+                }
+                break;
+            case State.leftUp:
+                switch (state)
+                {
+                    case State.left:
+                        dir = State.upLeft;
+                        break;
+                    case State.right:
+                        dir = State.upRight;
+                        break;
+                    case State.up:
+                        dir = State.up;
+                        break;
+                }
+                break;
+            case State.rightUp:
+                switch (state)
+                {
+                    case State.left:
+                        dir = State.upLeft;
+                        break;
+                    case State.right:
+                        dir = State.upRight;
+                        break;
+                    case State.up:
+                        dir = State.up;
+                        break;
+                }
+                break;
+
+            case State.right:
+                switch (state)
+                {
+                    case State.up:
+                        dir = State.rightUp;
+                        break;
+                    case State.down:
+                        dir = State.rightDown;
+                        break;
+                    case State.right:
+                        dir = State.right;
+                        break;
+                }
+                break;
+            case State.downRight:
+                switch (state)
+                {
+                    case State.up:
+                        dir = State.rightUp;
+                        break;
+                    case State.down:
+                        dir = State.rightDown;
+                        break;
+                    case State.right:
+                        dir = State.right;
+                        break;
+                }
+                break;
+            case State.upRight:
+                switch (state)
+                {
+                    case State.up:
+                        dir = State.rightUp;
+                        break;
+                    case State.down:
+                        dir = State.rightDown;
+                        break;
+                    case State.right:
+                        dir = State.right;
+                        break;
+                }
+                break;
+
+            case State.left:
+                switch (state)
+                {
+                    case State.up:
+                        dir = State.leftUp;
+                        break;
+                    case State.down:
+                        dir = State.leftDown;
+                        break;
+                    case State.left:
+                        dir = State.left;
+                        break;
+                }
+                break;
+            case State.upLeft:
+                switch (state)
+                {
+                    case State.up:
+                        dir = State.leftUp;
+                        break;
+                    case State.down:
+                        dir = State.leftDown;
+                        break;
+                    case State.left:
+                        dir = State.left;
+                        break;
+                }
+                break;
+            case State.downLeft:
+                switch (state)
+                {
+                    case State.up:
+                        dir = State.leftUp;
+                        break;
+                    case State.down:
+                        dir = State.leftDown;
+                        break;
+                    case State.left:
+                        dir = State.left;
+                        break;
+                }
+                break;
+        }
+        return dir;
     }
 }

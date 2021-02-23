@@ -244,7 +244,7 @@ ScriptsOnlyBuild:
     className: AnimationPlayableAsset
   - hash:
       serializedVersion: 2
-      Hash: 046bd68a7591e125adf642fd2542f794
+      Hash: 0ae56c7fb38e6b5e08c0e836aa42d837
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: HeadMoving
