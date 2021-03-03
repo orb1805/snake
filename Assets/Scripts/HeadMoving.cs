@@ -5,10 +5,10 @@ using UnityEngine;
 public class HeadMoving : MonoBehaviour
 {
     private float time;
-    private float deltaTime = 0.15f;
+    private float deltaTime = 0.32f;
     private Vector3 step = new Vector3(1f, 0f, 0f);
     private bool isPlaying = true;
-    private enum State { right = 0, left = 1, up = 2, down = 3, downLeft = 4, upLeft = 5, rightUp = 6, rightDown = 7, leftUp = 8, downRight = 9, upRight = 10 , leftDown = 11};
+    private enum State { right = 0, left = 1, up = 2, down = 3, downLeft = 4, upLeft = 5, rightUp = 6, rightDown = 7, leftUp = 8, downRight = 9, upRight = 10, leftDown = 11 };
     private State state = State.right;
     private State tailState = State.right;
     private int addCount = 0;
@@ -19,22 +19,26 @@ public class HeadMoving : MonoBehaviour
     public GameObject bodyPart;
     public GameObject chershnyaObj;
     private GameObject chereshnya;
-    public GameObject tailObj;
-    private GameObject tail;
+    //public GameObject tailObj;
+    public GameObject tail;
     public GameObject angleObj;
     private List<GameObject> snake = new List<GameObject>();
     private List<State> directions = new List<State>();
+
+    private Animator anim;
 
     void Start()
     {
         snake.Add(Instantiate(bodyPart));
         snake[0].transform.position = new Vector3(-1f, 0f, 0f);
         directions.Add(State.right);
-        tail = Instantiate(tailObj);
+        //tail = Instantiate(tailObj);
         tail.transform.position = new Vector3(-2f, 0f, 0f);
         chereshnya = Instantiate(chershnyaObj);
         chereshnya.transform.position = new Vector3(Random.Range(-8, 8), Random.Range(-7, 7), 0f);
         time = Time.time;
+
+        anim = GetComponent<Animator>();
     }
 
     void Update()
@@ -51,7 +55,6 @@ public class HeadMoving : MonoBehaviour
                 if (addCount > 0)
                 {
                     directions.Add(tailState);
-                    //snake.Add(Instantiate(bodyPart, tailPosition, Quaternion.Euler(0, 0, 0)));
                     addFlag = true;
                     addCount--;
                 }
@@ -129,25 +132,31 @@ public class HeadMoving : MonoBehaviour
         }
         else
             snake[0].transform.position = transform.position;
+
         transform.position += step;
         transform.rotation = rotation;
+
+        anim.Play("layer.HeadMoveAnimation", 0, 0f);
+        //anim.PlayInFixedTime("layer.HeadMoveAnimation", 0, 0.25f);
+        //Debug.Log("play anim");
+
         if (tail.transform.position.x > snake[snake.Count - 1].transform.position.x)
         {
             tail.transform.rotation = Quaternion.Euler(0, 0, 180);
             tailState = State.left;
         }
         else if (tail.transform.position.x < snake[snake.Count - 1].transform.position.x)
-        { 
+        {
             tail.transform.rotation = Quaternion.Euler(0, 0, 0);
             tailState = State.right;
         }
         else if (tail.transform.position.y > snake[snake.Count - 1].transform.position.y)
-        { 
+        {
             tail.transform.rotation = Quaternion.Euler(0, 0, 270);
             tailState = State.down;
         }
         else if (tail.transform.position.y < snake[snake.Count - 1].transform.position.y)
-        { 
+        {
             tail.transform.rotation = Quaternion.Euler(0, 0, 90);
             tailState = State.up;
         }
