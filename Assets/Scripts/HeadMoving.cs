@@ -10,6 +10,7 @@ public class HeadMoving : MonoBehaviour
     private bool isPlaying = true;
     private enum State { right = 0, left = 1, up = 2, down = 3, downLeft = 4, upLeft = 5, rightUp = 6, rightDown = 7, leftUp = 8, downRight = 9, upRight = 10, leftDown = 11 };
     private State state = State.right;
+    private State stateToChange;
     private State tailState = State.right;
     private int addCount = 0;
     private Vector3 tailPosition = new Vector3(0f, 0f, 0f);
@@ -51,6 +52,7 @@ public class HeadMoving : MonoBehaviour
                 tailPosition[0] = snake[snake.Count - 1].transform.position.x;
                 tailPosition[1] = snake[snake.Count - 1].transform.position.y;
                 tailPosition[2] = snake[snake.Count - 1].transform.position.z;
+                state = stateToChange;
                 moveSnake();
                 if (addCount > 0)
                 {
@@ -63,28 +65,28 @@ public class HeadMoving : MonoBehaviour
             {
                 step[0] = 0f;
                 step[1] = 1f;
-                state = State.up;
+                stateToChange = State.up;
                 rotation = Quaternion.Euler(0, 0, 90);
             }
             else if (Input.GetKey(KeyCode.DownArrow) && state != State.up)
             {
                 step[0] = 0f;
                 step[1] = -1f;
-                state = State.down;
+                stateToChange = State.down;
                 rotation = Quaternion.Euler(0, 0, 270);
             }
             else if (Input.GetKey(KeyCode.RightArrow) && state != State.left)
             {
                 step[0] = 1f;
                 step[1] = 0f;
-                state = State.right;
+                stateToChange = State.right;
                 rotation = Quaternion.Euler(0, 0, 0);
             }
             else if (Input.GetKey(KeyCode.LeftArrow) && state != State.right)
             {
                 step[0] = -1f;
                 step[1] = 0f;
-                state = State.left;
+                stateToChange = State.left;
                 rotation = Quaternion.Euler(0, 0, 180);
             }
         }
@@ -100,7 +102,10 @@ public class HeadMoving : MonoBehaviour
             addCount++;
         }
         else
+        {
             isPlaying = false;
+            anim.enabled = false;
+        }
     }
 
     private void moveSnake()
