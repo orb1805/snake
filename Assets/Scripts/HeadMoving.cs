@@ -5,7 +5,7 @@ using UnityEngine;
 public class HeadMoving : MonoBehaviour
 {
     private float time;
-    private float deltaTime = 0.32f;
+    private float deltaTime = 0.16f;
     private Vector3 step = new Vector3(1f, 0f, 0f);
     private bool isPlaying = true;
     private enum State { right = 0, left = 1, up = 2, down = 3, downLeft = 4, upLeft = 5, rightUp = 6, rightDown = 7, leftUp = 8, downRight = 9, upRight = 10, leftDown = 11 };
