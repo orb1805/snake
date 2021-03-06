@@ -27,6 +27,7 @@ public class HeadMoving : MonoBehaviour
     private List<State> directions = new List<State>();
 
     private Animator anim;
+    private Animator tailAnim;
 
     void Start()
     {
@@ -40,6 +41,7 @@ public class HeadMoving : MonoBehaviour
         time = Time.time;
 
         anim = GetComponent<Animator>();
+        tailAnim = tail.GetComponent<Animator>();
     }
 
     void Update()
@@ -142,6 +144,7 @@ public class HeadMoving : MonoBehaviour
         transform.rotation = rotation;
 
         anim.Play("layer.HeadMoveAnimation", 0, 0f);
+        tailAnim.Play("layer.TailMoveAnimation", 0, 0f);
         //anim.PlayInFixedTime("layer.HeadMoveAnimation", 0, 0.25f);
         //Debug.Log("play anim");
 

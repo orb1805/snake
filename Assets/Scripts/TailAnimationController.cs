@@ -16,10 +16,10 @@ public class TailAnimationController : MonoBehaviour
 
     void Update()
     {
-        if (postion != transform.position)
+        /*if (postion != transform.position)
         {
             postion = transform.position;
             anim.Play("layer.TailMoveAnimation", 0, 0f);
-        }   
+        }   */
     }
 }
