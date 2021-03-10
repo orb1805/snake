@@ -58,6 +58,7 @@
      <Compile Include="Assets\Scripts\HeadMoving.cs" />
      <Compile Include="Assets\Scripts\LastPartAnimationControl.cs" />
      <Compile Include="Assets\Scripts\TailAnimationController.cs" />
+     <Compile Include="Assets\Scripts\UIController.cs" />
  <Reference Include="UnityEngine">
  <HintPath>C:/Program Files/Unity/Hub/Editor/2019.4.20f1/Editor/Data/Managed/UnityEngine/UnityEngine.dll</HintPath>
  </Reference>

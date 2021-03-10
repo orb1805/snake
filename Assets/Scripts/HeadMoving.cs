@@ -7,7 +7,7 @@ public class HeadMoving : MonoBehaviour
 {
     private float time;
     private float deltaTime = 0.16f;
-    private Vector3 step = new Vector3(1f, 0f, 0f);
+    private Vector3 step = new Vector3(100f, 0f, 0f);
     private bool isPlaying = true;
     private enum State { right = 0, left = 1, up = 2, down = 3, downLeft = 4, upLeft = 5, rightUp = 6, rightDown = 7, leftUp = 8, downRight = 9, upRight = 10, leftDown = 11 };
     private State state = State.right;
@@ -19,6 +19,7 @@ public class HeadMoving : MonoBehaviour
     private bool addFlag = false;
     private bool isChanged = false;
     private State turnDirection;
+    public int chereshnyaCount = 0;
 
     public GameObject bodyPart;
     public GameObject chershnyaObj;
@@ -35,12 +36,12 @@ public class HeadMoving : MonoBehaviour
     void Start()
     {
         snake.Add(Instantiate(bodyPart));
-        snake[0].transform.position = new Vector3(-1f, 0f, 0f);
+        snake[0].transform.position = new Vector3(-100f, 0f, 0f);
         directions.Add(State.right);
         //tail = Instantiate(tailObj);
-        tail.transform.position = new Vector3(-2f, 0f, 0f);
+        tail.transform.position = new Vector3(-200f, 0f, 0f);
         chereshnya = Instantiate(chershnyaObj);
-        chereshnya.transform.position = new Vector3(Random.Range(-8, 8), Random.Range(-7, 7), 0f);
+        chereshnya.transform.position = new Vector3(Random.Range(-8, 8) * 100, Random.Range(-7, 7) * 100, 0f);
         time = Time.time;
 
         anim = GetComponent<Animator>();
@@ -82,7 +83,7 @@ public class HeadMoving : MonoBehaviour
                 if (Input.GetKey(KeyCode.UpArrow) && state != State.down && state != State.up)
                 {
                     step[0] = 0f;
-                    step[1] = 1f;
+                    step[1] = 100f;
                     stateToChange = State.up;
                     rotation = Quaternion.Euler(0, 0, 90);
                     isChanged = true;
@@ -94,7 +95,7 @@ public class HeadMoving : MonoBehaviour
                 else if (Input.GetKey(KeyCode.DownArrow) && state != State.up && state != State.down)
                 {
                     step[0] = 0f;
-                    step[1] = -1f;
+                    step[1] = -100f;
                     stateToChange = State.down;
                     rotation = Quaternion.Euler(0, 0, 270);
                     isChanged = true;
@@ -105,7 +106,7 @@ public class HeadMoving : MonoBehaviour
                 }
                 else if (Input.GetKey(KeyCode.RightArrow) && state != State.left && state != State.right)
                 {
-                    step[0] = 1f;
+                    step[0] = 100f;
                     step[1] = 0f;
                     stateToChange = State.right;
                     rotation = Quaternion.Euler(0, 0, 0);
@@ -117,7 +118,7 @@ public class HeadMoving : MonoBehaviour
                 }
                 else if (Input.GetKey(KeyCode.LeftArrow) && state != State.right && state != State.left)
                 {
-                    step[0] = -1f;
+                    step[0] = -100f;
                     step[1] = 0f;
                     stateToChange = State.left;
                     rotation = Quaternion.Euler(0, 0, 180);
@@ -139,6 +140,7 @@ public class HeadMoving : MonoBehaviour
             chereshnya = Instantiate(chershnyaObj);
             chereshnya.transform.position = newChereshnyaPosition();
             addCount++;
+            chereshnyaCount++;
         }
         else
         {
@@ -160,7 +162,7 @@ public class HeadMoving : MonoBehaviour
                 directions[directions.Count - 1] == State.leftDown || directions[directions.Count - 1] == State.upLeft)
                 tailAnim.Play("layer.TailTurnLeftAnimation", 0, 0f);
             else if (directions[directions.Count - 1] == State.downLeft || directions[directions.Count - 1] == State.leftUp ||
-                directions[directions.Count - 1] == State.upRight || directions[directions.Count - 1] == State.rightDown)
+                    directions[directions.Count - 1] == State.upRight || directions[directions.Count - 1] == State.rightDown)
                 tailAnim.Play("layer.TailTurnRightAnimation", 0, 0f);
             else
             {
@@ -243,8 +245,8 @@ public class HeadMoving : MonoBehaviour
         while (flag)
         {
             flag = false;
-            result[0] = Random.Range(-8, 8);
-            result[1] = Random.Range(-7, 7);
+            result[0] = Random.Range(-8, 8) * 100;
+            result[1] = Random.Range(-7, 7) * 100;
             foreach (GameObject i in snake)
                 if (i.transform.position == result)
                     flag = true;
