@@ -165,23 +165,21 @@ public class HeadMoving : MonoBehaviour
                     directions[directions.Count - 1] == State.upRight || directions[directions.Count - 1] == State.rightDown)
                 tailAnim.Play("layer.TailTurnRightAnimation", 0, 0f);
             else
-            {
-                switch (tailState)
-                {
-                    case State.left:
-                        tail.transform.rotation = Quaternion.Euler(0, 0, 180);
-                        break;
-                    case State.right:
-                        tail.transform.rotation = Quaternion.Euler(0, 0, 0);
-                        break;
-                    case State.down:
-                        tail.transform.rotation = Quaternion.Euler(0, 0, 270);
-                        break;
-                    case State.up:
-                        tail.transform.rotation = Quaternion.Euler(0, 0, 90);
-                        break;
-                }
                 tailAnim.Play("layer.TailMoveAnimation", 0, 0f);
+            switch (tailState)
+            {
+                case State.left:
+                    tail.transform.rotation = Quaternion.Euler(0, 0, 180);
+                    break;
+                case State.right:
+                    tail.transform.rotation = Quaternion.Euler(0, 0, 0);
+                    break;
+                case State.down:
+                    tail.transform.rotation = Quaternion.Euler(0, 0, 270);
+                    break;
+                case State.up:
+                    tail.transform.rotation = Quaternion.Euler(0, 0, 90);
+                    break;
             }
             tail.transform.position = snake[snake.Count - 1].transform.position;
         }
