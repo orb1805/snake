@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Threading;
 
 public class HeadMoving : MonoBehaviour
 {
@@ -16,6 +17,8 @@ public class HeadMoving : MonoBehaviour
     private Vector3 tailPosition = new Vector3(0f, 0f, 0f);
     private Quaternion rotation = Quaternion.Euler(0, 0, 0);
     private bool addFlag = false;
+    private bool isChanged = false;
+    private State turnDirection;
 
     public GameObject bodyPart;
     public GameObject chershnyaObj;
@@ -48,48 +51,82 @@ public class HeadMoving : MonoBehaviour
     {
         if (isPlaying)
         {
-            if (Time.time - time > deltaTime)
+            if (isChanged)
             {
-                time = Time.time;
-                tailPosition[0] = snake[snake.Count - 1].transform.position.x;
-                tailPosition[1] = snake[snake.Count - 1].transform.position.y;
-                tailPosition[2] = snake[snake.Count - 1].transform.position.z;
-                state = stateToChange;
-                moveSnake();
-                if (addCount > 0)
+                isChanged = false;
+                //transform.rotation = rot;
+                if (turnDirection == State.right)
+                    anim.Play("layer.HeadTurnRight", 0, 0f);
+                else
+                    anim.Play("layer.HeadTurnLeft", 0, 0f);
+
+            }
+            else
+            {
+                if (Time.time - time > deltaTime)
                 {
-                    directions.Add(tailState);
-                    addFlag = true;
-                    addCount--;
+                    transform.rotation = rotation;
+                    time = Time.time;
+                    tailPosition[0] = snake[snake.Count - 1].transform.position.x;
+                    tailPosition[1] = snake[snake.Count - 1].transform.position.y;
+                    tailPosition[2] = snake[snake.Count - 1].transform.position.z;
+                    state = stateToChange;
+                    moveSnake();
+                    if (addCount > 0)
+                    {
+                        directions.Add(tailState);
+                        addFlag = true;
+                        addCount--;
+                    }
                 }
-            }
-            if (Input.GetKey(KeyCode.UpArrow) && state != State.down)
-            {
-                step[0] = 0f;
-                step[1] = 1f;
-                stateToChange = State.up;
-                rotation = Quaternion.Euler(0, 0, 90);
-            }
-            else if (Input.GetKey(KeyCode.DownArrow) && state != State.up)
-            {
-                step[0] = 0f;
-                step[1] = -1f;
-                stateToChange = State.down;
-                rotation = Quaternion.Euler(0, 0, 270);
-            }
-            else if (Input.GetKey(KeyCode.RightArrow) && state != State.left)
-            {
-                step[0] = 1f;
-                step[1] = 0f;
-                stateToChange = State.right;
-                rotation = Quaternion.Euler(0, 0, 0);
-            }
-            else if (Input.GetKey(KeyCode.LeftArrow) && state != State.right)
-            {
-                step[0] = -1f;
-                step[1] = 0f;
-                stateToChange = State.left;
-                rotation = Quaternion.Euler(0, 0, 180);
+                if (Input.GetKey(KeyCode.UpArrow) && state != State.down && state != State.up)
+                {
+                    step[0] = 0f;
+                    step[1] = 1f;
+                    stateToChange = State.up;
+                    rotation = Quaternion.Euler(0, 0, 90);
+                    isChanged = true;
+                    if (state == State.left)
+                        turnDirection = State.right;
+                    else
+                        turnDirection = State.left;
+                }
+                else if (Input.GetKey(KeyCode.DownArrow) && state != State.up && state != State.down)
+                {
+                    step[0] = 0f;
+                    step[1] = -1f;
+                    stateToChange = State.down;
+                    rotation = Quaternion.Euler(0, 0, 270);
+                    isChanged = true;
+                    if (state == State.right)
+                        turnDirection = State.right;
+                    else
+                        turnDirection = State.left;
+                }
+                else if (Input.GetKey(KeyCode.RightArrow) && state != State.left && state != State.right)
+                {
+                    step[0] = 1f;
+                    step[1] = 0f;
+                    stateToChange = State.right;
+                    rotation = Quaternion.Euler(0, 0, 0);
+                    isChanged = true;
+                    if (state == State.up)
+                        turnDirection = State.right;
+                    else
+                        turnDirection = State.left;
+                }
+                else if (Input.GetKey(KeyCode.LeftArrow) && state != State.right && state != State.left)
+                {
+                    step[0] = -1f;
+                    step[1] = 0f;
+                    stateToChange = State.left;
+                    rotation = Quaternion.Euler(0, 0, 180);
+                    isChanged = true;
+                    if (state == State.down)
+                        turnDirection = State.right;
+                    else
+                        turnDirection = State.left;
+                }
             }
         }
     }
@@ -118,7 +155,34 @@ public class HeadMoving : MonoBehaviour
             addFlag = false;
         }
         else
+        {
+            if (directions[directions.Count - 1] == State.rightUp || directions[directions.Count - 1] == State.downRight || 
+                directions[directions.Count - 1] == State.leftDown || directions[directions.Count - 1] == State.upLeft)
+                tailAnim.Play("layer.TailTurnLeftAnimation", 0, 0f);
+            else if (directions[directions.Count - 1] == State.downLeft || directions[directions.Count - 1] == State.leftUp ||
+                directions[directions.Count - 1] == State.upRight || directions[directions.Count - 1] == State.rightDown)
+                tailAnim.Play("layer.TailTurnRightAnimation", 0, 0f);
+            else
+            {
+                switch (tailState)
+                {
+                    case State.left:
+                        tail.transform.rotation = Quaternion.Euler(0, 0, 180);
+                        break;
+                    case State.right:
+                        tail.transform.rotation = Quaternion.Euler(0, 0, 0);
+                        break;
+                    case State.down:
+                        tail.transform.rotation = Quaternion.Euler(0, 0, 270);
+                        break;
+                    case State.up:
+                        tail.transform.rotation = Quaternion.Euler(0, 0, 90);
+                        break;
+                }
+                tailAnim.Play("layer.TailMoveAnimation", 0, 0f);
+            }
             tail.transform.position = snake[snake.Count - 1].transform.position;
+        }
         for (int i = snake.Count - 1; i > 0; i--)
         {
             if (directions[i] != directions[i - 1])
@@ -141,31 +205,32 @@ public class HeadMoving : MonoBehaviour
             snake[0].transform.position = transform.position;
 
         transform.position += step;
-        transform.rotation = rotation;
+        //transform.rotation = rotation;
 
         anim.Play("layer.HeadMoveAnimation", 0, 0f);
-        tailAnim.Play("layer.TailMoveAnimation", 0, 0f);
+        //tailAnim.Play("layer.TailMoveAnimation", 0, 0f);
+
         //anim.PlayInFixedTime("layer.HeadMoveAnimation", 0, 0.25f);
         //Debug.Log("play anim");
 
         if (tail.transform.position.x > snake[snake.Count - 1].transform.position.x)
         {
-            tail.transform.rotation = Quaternion.Euler(0, 0, 180);
+            //tail.transform.rotation = Quaternion.Euler(0, 0, 180);
             tailState = State.left;
         }
         else if (tail.transform.position.x < snake[snake.Count - 1].transform.position.x)
         {
-            tail.transform.rotation = Quaternion.Euler(0, 0, 0);
+            //tail.transform.rotation = Quaternion.Euler(0, 0, 0);
             tailState = State.right;
         }
         else if (tail.transform.position.y > snake[snake.Count - 1].transform.position.y)
         {
-            tail.transform.rotation = Quaternion.Euler(0, 0, 270);
+            //tail.transform.rotation = Quaternion.Euler(0, 0, 270);
             tailState = State.down;
         }
         else if (tail.transform.position.y < snake[snake.Count - 1].transform.position.y)
         {
-            tail.transform.rotation = Quaternion.Euler(0, 0, 90);
+            //tail.transform.rotation = Quaternion.Euler(0, 0, 90);
             tailState = State.up;
         }
     }
