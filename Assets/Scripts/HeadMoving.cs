@@ -45,7 +45,9 @@ public class HeadMoving : MonoBehaviour
         time = Time.time;
 
         anim = GetComponent<Animator>();
+        //anim.enabled = false;
         tailAnim = tail.GetComponent<Animator>();
+        //tailAnim.enabled = false;
     }
 
     void Update()
@@ -272,6 +274,12 @@ public class HeadMoving : MonoBehaviour
                 return Instantiate(angleObj, position, Quaternion.Euler(0, 0, 270));
             case State.downRight:
                 return Instantiate(angleObj, position, Quaternion.Euler(0, 0, 270));
+            case State.right:
+            case State.left:
+                return Instantiate(bodyPart, position, Quaternion.Euler(0, 0, 0));
+            case State.up:
+            case State.down:
+                return Instantiate(bodyPart, position, Quaternion.Euler(0, 0, 90));
         }
         return Instantiate(bodyPart, position, Quaternion.Euler(0, 0, 0));
     }
